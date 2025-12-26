@@ -12,66 +12,81 @@
             color: #fff; 
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #050505 80%);
+            background-attachment: fixed;
         }
         .glass-card { 
             background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .glass-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(59, 130, 246, 0.4);
-            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-8px);
         }
         .neo-input {
-            background: rgba(0, 0, 0, 0.4) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: white;
             transition: 0.3s;
         }
-        .neo-input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.2); }
+        .neo-input:focus { 
+            border-color: #3b82f6 !important; 
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+        }
+        /* Yanlış Şifre Efekti */
+        .shake { animation: shake 0.4s ease-in-out; border-color: #ef4444 !important; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .status-active { color: #3b82f6 !important; border-color: rgba(59, 130, 246, 0.4) !important; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <nav class="sticky top-0 z-40 px-6 py-4 border-b border-white/5 backdrop-blur-md">
+    <nav class="sticky top-0 z-40 px-8 py-5 border-b border-white/5 backdrop-blur-xl bg-black/20">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/30">A</div>
                 <h1 class="text-xl font-extrabold tracking-tighter">ARCHIVE<span class="text-blue-500">HQ</span></h1>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="openM('userModal')" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-500 hover:text-white transition-all">＋ Oluştur</button>
-                <div id="adminIndicator" onclick="adminLogin()" class="w-3 h-3 rounded-full bg-slate-700 cursor-pointer border-2 border-black"></div>
+                <button onclick="openM('userModal')" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-500 hover:text-white transition-all active:scale-95">＋ Oluştur</button>
+                <div id="adminBtn" onclick="adminLogin()" class="cursor-pointer flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5 transition-all">
+                    <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-700 transition-all"></div>
+                    <span id="adminText" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Admin</span>
+                </div>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 py-12">
-        <div id="loader" class="text-center py-20 text-slate-500 animate-pulse">Veritabanı taranıyor...</div>
+        <div id="loader" class="text-center py-20 text-slate-500 font-bold tracking-widest animate-pulse italic text-sm">VERİTABANI SENKRONİZE EDİLİYOR...</div>
         <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </main>
 
-    <div id="userModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 transition-all">
-        <div class="glass-card p-8 rounded-[2rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-6">
-            <h2 class="text-3xl font-extrabold tracking-tight">Profil <span class="text-blue-500">Tanımla</span></h2>
+    <div id="userModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 backdrop-blur-md">
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-6">
+            <h2 class="text-3xl font-extrabold tracking-tight mb-4">Profil <span class="text-blue-500">Ekle</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="text" id="name" placeholder="Tam İsim" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="text" id="nickname" placeholder="Nam-ı Değer (Lakap)" class="neo-input p-4 rounded-2xl outline-none">
+                <input type="text" id="nickname" placeholder="Lakap" class="neo-input p-4 rounded-2xl outline-none">
                 <input type="number" id="age" placeholder="Yaş" class="neo-input p-4 rounded-2xl outline-none">
                 <input type="text" id="country" placeholder="Ülke" class="neo-input p-4 rounded-2xl outline-none">
                 <input type="text" id="city" placeholder="İl" class="neo-input p-4 rounded-2xl outline-none">
                 <input type="text" id="district" placeholder="İlçe" class="neo-input p-4 rounded-2xl outline-none">
             </div>
             <textarea id="bio" placeholder="Kişi hakkında derin detaylar..." class="neo-input w-full p-4 rounded-2xl outline-none h-32"></textarea>
-            <div>
-                <label class="text-xs text-slate-500 mb-2 block uppercase font-bold tracking-widest">Profil Fotoğrafı</label>
-                <input type="file" id="photo" class="text-sm text-slate-400">
+            <div class="bg-white/5 p-4 rounded-2xl border border-dashed border-white/10">
+                <input type="file" id="photo" class="text-xs text-slate-400">
             </div>
-            <div class="flex gap-4 pt-4">
-                <button onclick="save()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold shadow-xl shadow-blue-500/20 transition-all">Veritabanına İşle</button>
+            <div class="flex gap-4 pt-2">
+                <button onclick="save()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/20 transition-all">Sisteme Kaydet</button>
                 <button onclick="closeM('userModal')" class="px-8 py-4 bg-slate-800 rounded-2xl font-bold">Vazgeç</button>
             </div>
         </div>
@@ -82,9 +97,11 @@
         let people = [];
 
         async function fetchAll() {
-            const res = await fetch('/api/message');
-            const json = await res.json();
-            people = json.data || [];
+            try {
+                const res = await fetch('/api/message');
+                const json = await res.json();
+                people = json.data || [];
+            } catch (e) { console.error("API Hatası"); }
             document.getElementById('loader').classList.add('hidden');
             render();
         }
@@ -92,47 +109,47 @@
         function render() {
             const grid = document.getElementById('grid');
             grid.innerHTML = people.map(p => `
-                <div class="glass-card p-6 rounded-[2.5rem] flex flex-col group">
+                <div class="glass-card p-6 rounded-[2.5rem] flex flex-col group relative overflow-hidden">
                     <div class="relative mb-6">
-                        <img src="${p.photo || 'https://api.dicebear.com/7.x/shapes/svg?seed='+p.id}" class="w-full h-48 object-cover rounded-[2rem] shadow-2xl">
-                        <div class="absolute -bottom-4 left-6 bg-blue-600 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-xl">
+                        <img src="${p.photo || 'https://api.dicebear.com/7.x/shapes/svg?seed='+p.id}" class="w-full h-48 object-cover rounded-[1.8rem] shadow-2xl transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute bottom-3 left-4 bg-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
                             ID: ${String(p.id).slice(-6)}
                         </div>
                     </div>
 
                     <div class="px-2 mb-4">
                         <h3 class="text-2xl font-extrabold group-hover:text-blue-400 transition-colors">${p.name}</h3>
-                        <p class="text-blue-500/60 font-medium text-sm">"${p.nickname}"</p>
+                        <p class="text-blue-500/60 font-bold text-xs italic">"${p.nickname}"</p>
                     </div>
 
-                    <div class="flex flex-wrap gap-2 mb-6 px-2">
-                        <span class="bg-white/5 px-3 py-1 rounded-lg text-[10px] font-bold text-slate-400">${p.age} YAŞ</span>
-                        <span class="bg-blue-500/10 px-3 py-1 rounded-lg text-[10px] font-bold text-blue-400">${p.country} / ${p.city} / ${p.district}</span>
+                    <div class="flex flex-wrap gap-2 mb-6 px-2 text-[10px] font-bold">
+                        <span class="bg-white/5 px-3 py-1 rounded-lg text-slate-400">${p.age} YAŞ</span>
+                        <span class="bg-blue-500/10 px-3 py-1 rounded-lg text-blue-400 uppercase">${p.country} / ${p.city}</span>
                     </div>
 
-                    <p class="text-slate-400 text-sm px-2 mb-8 leading-relaxed italic border-l-2 border-white/5">"${p.bio}"</p>
+                    <p class="text-slate-400 text-sm px-2 mb-8 leading-relaxed italic border-l border-white/10">"${p.bio}"</p>
 
                     <div class="mt-auto space-y-3">
-                        <div class="bg-black/40 rounded-3xl p-4 space-y-2 max-h-32 overflow-y-auto">
+                        <div class="bg-black/40 rounded-2xl p-3 space-y-2 max-h-32 overflow-y-auto border border-white/5 text-[11px]">
                             ${p.comments.length ? p.comments.map(c => `
-                                <div class="text-[11px] bg-white/5 p-2 rounded-xl">
+                                <div class="bg-white/5 p-2 rounded-xl">
                                     <span class="text-slate-300 font-medium">${c.text}</span>
-                                    <span class="block text-[9px] text-slate-600 mt-1">${c.date}</span>
+                                    <span class="block text-[8px] text-slate-600 mt-1 uppercase font-bold">${c.date}</span>
                                 </div>
-                            `).join('') : '<p class="text-[10px] text-slate-700 text-center">Henüz fikir beyan edilmedi.</p>'}
+                            `).join('') : '<p class="text-[9px] text-slate-700 text-center uppercase font-bold">İstihbarat Yok</p>'}
                         </div>
                         <div class="flex gap-2">
-                            <input type="text" placeholder="Görüşünü bildir..." id="in-${p.id}" class="flex-1 neo-input text-xs p-3 rounded-xl outline-none">
+                            <input type="text" placeholder="Yorum ekle..." id="in-${p.id}" class="flex-1 neo-input text-xs p-3 rounded-xl outline-none">
                             <button onclick="addComment(${p.id})" class="bg-white text-black p-3 rounded-xl hover:bg-blue-500 hover:text-white transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                             </button>
                         </div>
                     </div>
 
                     ${adminKey ? `
-                        <div class="mt-6 pt-4 border-t border-white/5 flex gap-4 justify-center">
-                            <button onclick="edit(${p.id})" class="text-[10px] font-bold text-blue-400 hover:underline">DÜZENLE</button>
-                            <button onclick="del(${p.id})" class="text-[10px] font-bold text-red-500 hover:underline">KAYDI SİL</button>
+                        <div class="mt-6 pt-4 border-t border-white/5 flex gap-6 justify-center">
+                            <button onclick="edit(${p.id})" class="text-[10px] font-black text-blue-400 hover:underline tracking-widest uppercase">DÜZENLE</button>
+                            <button onclick="del(${p.id})" class="text-[10px] font-black text-red-500 hover:underline tracking-widest uppercase">KAYDI SİL</button>
                         </div>
                     ` : ''}
                 </div>
@@ -173,17 +190,39 @@
             fetchAll();
         }
 
-        function adminLogin() {
+        async function adminLogin() {
+            const btn = document.getElementById('adminBtn');
+            const txt = document.getElementById('adminText');
+            const dot = document.getElementById('statusDot');
+
             const p = prompt("Yönetici Yetkilendirmesi:");
-            if(p) {
+            if(!p) return;
+
+            // Backend'e kontrol isteği gönderiyoruz (isAdmin dönüyor mu diye bakıyoruz)
+            const check = await fetch(`/api/message?auth=${p}`);
+            const res = await check.json();
+
+            if (res.isAdmin) {
                 adminKey = p;
-                document.getElementById('adminIndicator').classList.replace('bg-slate-700', 'bg-blue-500');
+                btn.classList.add('status-active');
+                dot.classList.replace('bg-slate-700', 'bg-blue-500');
+                txt.innerText = "YETKİLİ";
                 render();
+            } else {
+                // Şifre Yanlışsa
+                txt.innerText = "NOPE";
+                txt.classList.add('text-red-500');
+                btn.classList.add('shake');
+                setTimeout(() => {
+                    btn.classList.remove('shake');
+                    txt.innerText = "ADMIN";
+                    txt.classList.remove('text-red-500');
+                }, 1000);
             }
         }
 
         async function del(id) {
-            if(!confirm("Kayıt kalıcı olarak silinecek?")) return;
+            if(!confirm("Bu kayıt veritabanından kalıcı olarak silinsin mi?")) return;
             await fetch('/api/message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -198,12 +237,13 @@
             const nBio = prompt("Hakkında Güncelle:", p.bio);
             if(!nName) return;
 
+            // Sizin backend kodunuz "updatedFields" bekliyor, ona göre düzenledim.
             await fetch('/api/message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     action: 'update', 
-                    data: { id, fields: { name: nName, bio: nBio } }, 
+                    data: { id, updatedFields: { name: nName, bio: nBio } }, 
                     auth: adminKey 
                 })
             });
