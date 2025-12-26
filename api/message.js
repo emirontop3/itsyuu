@@ -1,5 +1,3 @@
-import { kv } from '@vercel/kv';
-
 export default async function handler(req, res) {
   // Vercel'in senin için tanımladığı ENV'leri alıyoruz
   const url = process.env.KV_REST_API_URL;
