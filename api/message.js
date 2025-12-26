@@ -14,7 +14,6 @@ export default async function handler(req, res) {
       if (!id || !data) return res.status(400).json({ error: "Eksik veri" });
       
       // Veriyi 7 gün sonra silinecek şekilde ayarla (opsiyonel)
-      await kv.set(id, data, { ex: 604800 }); 
       return res.status(200).json({ success: true });
     } 
 
