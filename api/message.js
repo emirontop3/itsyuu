@@ -31,8 +31,13 @@ export default async function handler(req, res) {
       } else if (action === 'update') {
         const index = currentData.findIndex(p => p.id === data.id);
         if (index !== -1) currentData[index] = { ...currentData[index], ...data.updatedFields };
-      }
-
+      } else if (action === 'delete_comment') {
+        const person = currentData.find(p => p.id === data.personId);
+        if (person) {
+        person.comments = person.comments.filter((_, index) => index !== data.commentIndex);
+  }
+}
+      
       await fetch(`${url}/set/${DB_KEY}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
