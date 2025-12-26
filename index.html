@@ -8,55 +8,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         body { 
-            background: #050505; 
-            color: #fff; 
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #050505; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif;
             background-image: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #050505 80%);
             background-attachment: fixed;
         }
         .glass-card { 
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(59, 130, 246, 0.5);
-            transform: translateY(-8px);
-        }
-        .neo-input {
-            background: rgba(0, 0, 0, 0.3) !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            color: white;
-            transition: 0.3s;
-        }
-        .neo-input:focus { 
-            border-color: #3b82f6 !important; 
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
-        }
-        /* Yanlış Şifre Efekti */
-        .shake { animation: shake 0.4s ease-in-out; border-color: #ef4444 !important; }
+        .glass-card:hover { transform: translateY(-5px); border-color: rgba(59, 130, 246, 0.4); }
+        .neo-input { background: rgba(0, 0, 0, 0.3) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: white; }
+        .shake { animation: shake 0.4s ease-in-out; border-color: #ef4444 !important; color: #ef4444 !important; }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-8px); }
             75% { transform: translateX(8px); }
         }
-        .status-active { color: #3b82f6 !important; border-color: rgba(59, 130, 246, 0.4) !important; }
+        .admin-glow { box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); border-color: #3b82f6 !important; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <nav class="sticky top-0 z-40 px-8 py-5 border-b border-white/5 backdrop-blur-xl bg-black/20">
+    <nav class="sticky top-0 z-40 px-8 py-5 border-b border-white/5 backdrop-blur-xl bg-black/40">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-blue-500/30">A</div>
-                <h1 class="text-xl font-extrabold tracking-tighter">ARCHIVE<span class="text-blue-500">HQ</span></h1>
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black shadow-lg shadow-blue-500/20">A</div>
+                <h1 class="text-xl font-extrabold tracking-tighter uppercase">Archive<span class="text-blue-500">HQ</span></h1>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="openM('userModal')" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-500 hover:text-white transition-all active:scale-95">＋ Oluştur</button>
+                <button onclick="openM('userModal')" class="bg-white text-black px-6 py-2 rounded-full font-bold text-xs hover:bg-blue-500 hover:text-white transition-all">＋ Kayıt</button>
                 <div id="adminBtn" onclick="adminLogin()" class="cursor-pointer flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5 transition-all">
                     <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-700 transition-all"></div>
                     <span id="adminText" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Admin</span>
@@ -66,28 +48,26 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-6 py-12">
-        <div id="loader" class="text-center py-20 text-slate-500 font-bold tracking-widest animate-pulse italic text-sm">VERİTABANI SENKRONİZE EDİLİYOR...</div>
+        <div id="loader" class="text-center py-20 text-slate-500 font-bold animate-pulse text-xs tracking-[0.2em]">VERİLER YÜKLENİYOR...</div>
         <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </main>
 
     <div id="userModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 backdrop-blur-md">
-        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-2xl max-h-[90vh] overflow-y-auto space-y-6">
-            <h2 class="text-3xl font-extrabold tracking-tight mb-4">Profil <span class="text-blue-500">Ekle</span></h2>
+        <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-2xl space-y-6 overflow-y-auto max-h-[90vh]">
+            <h2 class="text-2xl font-black italic uppercase">Profil <span class="text-blue-500">Oluştur</span></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="name" placeholder="Tam İsim" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="text" id="nickname" placeholder="Lakap" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="number" id="age" placeholder="Yaş" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="text" id="country" placeholder="Ülke" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="text" id="city" placeholder="İl" class="neo-input p-4 rounded-2xl outline-none">
-                <input type="text" id="district" placeholder="İlçe" class="neo-input p-4 rounded-2xl outline-none">
+                <input type="text" id="name" placeholder="İsim Soyisim" class="neo-input p-4 rounded-2xl outline-none text-sm">
+                <input type="text" id="nickname" placeholder="Lakap" class="neo-input p-4 rounded-2xl outline-none text-sm">
+                <input type="number" id="age" placeholder="Yaş" class="neo-input p-4 rounded-2xl outline-none text-sm">
+                <input type="text" id="country" placeholder="Ülke" class="neo-input p-4 rounded-2xl outline-none text-sm">
+                <input type="text" id="city" placeholder="İl" class="neo-input p-4 rounded-2xl outline-none text-sm">
+                <input type="text" id="district" placeholder="İlçe" class="neo-input p-4 rounded-2xl outline-none text-sm">
             </div>
-            <textarea id="bio" placeholder="Kişi hakkında derin detaylar..." class="neo-input w-full p-4 rounded-2xl outline-none h-32"></textarea>
-            <div class="bg-white/5 p-4 rounded-2xl border border-dashed border-white/10">
-                <input type="file" id="photo" class="text-xs text-slate-400">
-            </div>
-            <div class="flex gap-4 pt-2">
-                <button onclick="save()" class="flex-1 bg-blue-600 hover:bg-blue-500 py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/20 transition-all">Sisteme Kaydet</button>
-                <button onclick="closeM('userModal')" class="px-8 py-4 bg-slate-800 rounded-2xl font-bold">Vazgeç</button>
+            <textarea id="bio" placeholder="Biyografi detayları..." class="neo-input w-full p-4 rounded-2xl outline-none h-28 text-sm"></textarea>
+            <input type="file" id="photo" class="text-xs text-slate-500">
+            <div class="flex gap-3">
+                <button onclick="save()" class="flex-1 bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all">Kaydet</button>
+                <button onclick="closeM('userModal')" class="px-8 bg-slate-800 rounded-2xl font-bold">İptal</button>
             </div>
         </div>
     </div>
@@ -109,74 +89,88 @@
         function render() {
             const grid = document.getElementById('grid');
             grid.innerHTML = people.map(p => `
-                <div class="glass-card p-6 rounded-[2.5rem] flex flex-col group relative overflow-hidden">
+                <div class="glass-card p-6 rounded-[2.5rem] flex flex-col group overflow-hidden">
                     <div class="relative mb-6">
-                        <img src="${p.photo || 'https://api.dicebear.com/7.x/shapes/svg?seed='+p.id}" class="w-full h-48 object-cover rounded-[1.8rem] shadow-2xl transition-transform duration-500 group-hover:scale-105">
-                        <div class="absolute bottom-3 left-4 bg-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter">
-                            ID: ${String(p.id).slice(-6)}
-                        </div>
+                        <img src="${p.photo || 'https://api.dicebear.com/7.x/identicon/svg?seed='+p.id}" class="w-full h-44 object-cover rounded-[1.5rem] transition-transform duration-500 group-hover:scale-105">
+                        <div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-bold text-blue-400 border border-white/10">ID: ${String(p.id).slice(-4)}</div>
                     </div>
 
-                    <div class="px-2 mb-4">
-                        <h3 class="text-2xl font-extrabold group-hover:text-blue-400 transition-colors">${p.name}</h3>
-                        <p class="text-blue-500/60 font-bold text-xs italic">"${p.nickname}"</p>
+                    <div class="mb-4">
+                        <h3 class="text-xl font-black tracking-tight">${p.name}</h3>
+                        <p class="text-blue-500 text-xs font-bold italic opacity-70">@${p.nickname}</p>
                     </div>
 
-                    <div class="flex flex-wrap gap-2 mb-6 px-2 text-[10px] font-bold">
-                        <span class="bg-white/5 px-3 py-1 rounded-lg text-slate-400">${p.age} YAŞ</span>
-                        <span class="bg-blue-500/10 px-3 py-1 rounded-lg text-blue-400 uppercase">${p.country} / ${p.city}</span>
+                    <div class="flex gap-2 mb-6 text-[10px] font-bold uppercase tracking-wider">
+                        <span class="bg-white/5 px-3 py-1 rounded-lg text-slate-400">${p.age} Yaş</span>
+                        <span class="bg-blue-500/10 px-3 py-1 rounded-lg text-blue-400">${p.city}</span>
                     </div>
 
-                    <p class="text-slate-400 text-sm px-2 mb-8 leading-relaxed italic border-l border-white/10">"${p.bio}"</p>
+                    <div class="bg-black/40 rounded-2xl p-4 mb-6 text-xs text-slate-400 italic leading-relaxed border-l-2 border-blue-600/40">"${p.bio}"</div>
 
-                    <div class="mt-auto space-y-3">
-                        <div class="bg-black/40 rounded-2xl p-3 space-y-2 max-h-32 overflow-y-auto border border-white/5 text-[11px]">
-                            ${p.comments.length ? p.comments.map(c => `
-                                <div class="bg-white/5 p-2 rounded-xl">
-                                    <span class="text-slate-300 font-medium">${c.text}</span>
-                                    <span class="block text-[8px] text-slate-600 mt-1 uppercase font-bold">${c.date}</span>
+                    <div class="space-y-3">
+                        <div class="bg-black/20 rounded-xl p-2 space-y-2 max-h-32 overflow-y-auto border border-white/5">
+                            ${p.comments.map((c, index) => `
+                                <div class="bg-white/5 p-2 rounded-lg flex justify-between items-start group/comm">
+                                    <div class="pr-2">
+                                        <p class="text-[11px] text-slate-300 leading-tight">${c.text}</p>
+                                        <span class="text-[8px] text-slate-600 font-bold uppercase mt-1 block">${c.date}</span>
+                                    </div>
+                                    ${adminKey ? `<button onclick="deleteComment(${p.id}, ${index})" class="text-red-500/50 hover:text-red-500 transition-colors text-[10px] ml-2">✕</button>` : ''}
                                 </div>
-                            `).join('') : '<p class="text-[9px] text-slate-700 text-center uppercase font-bold">İstihbarat Yok</p>'}
+                            `).join('') || '<p class="text-[9px] text-slate-700 text-center py-2 uppercase font-bold tracking-widest">Yorum Yok</p>'}
                         </div>
                         <div class="flex gap-2">
-                            <input type="text" placeholder="Yorum ekle..." id="in-${p.id}" class="flex-1 neo-input text-xs p-3 rounded-xl outline-none">
-                            <button onclick="addComment(${p.id})" class="bg-white text-black p-3 rounded-xl hover:bg-blue-500 hover:text-white transition-all">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <input type="text" id="in-${p.id}" placeholder="Yorum yap..." class="flex-1 neo-input text-[11px] p-3 rounded-xl outline-none focus:border-blue-500/50">
+                            <button onclick="addComment(${p.id})" class="bg-white text-black px-4 rounded-xl hover:bg-blue-600 hover:text-white transition-all active:scale-90">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                             </button>
                         </div>
                     </div>
 
                     ${adminKey ? `
-                        <div class="mt-6 pt-4 border-t border-white/5 flex gap-6 justify-center">
-                            <button onclick="edit(${p.id})" class="text-[10px] font-black text-blue-400 hover:underline tracking-widest uppercase">DÜZENLE</button>
-                            <button onclick="del(${p.id})" class="text-[10px] font-black text-red-500 hover:underline tracking-widest uppercase">KAYDI SİL</button>
+                        <div class="mt-6 pt-4 border-t border-white/5 flex justify-between px-2">
+                            <button onclick="edit(${p.id})" class="text-[9px] font-black text-blue-400 hover:text-white uppercase tracking-widest">Düzenle</button>
+                            <button onclick="del(${p.id})" class="text-[9px] font-black text-red-500 hover:text-white uppercase tracking-widest">Kaydı Sil</button>
                         </div>
                     ` : ''}
                 </div>
             `).join('');
         }
 
-        async function save() {
-            const f = document.getElementById('photo').files[0];
-            const img = f ? await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }) : "";
+        async function adminLogin() {
+            const btn = document.getElementById('adminBtn');
+            const txt = document.getElementById('adminText');
+            const dot = document.getElementById('statusDot');
+            const p = prompt("Sistem Anahtarı:");
+            if(!p) return;
 
-            const obj = {
-                name: document.getElementById('name').value,
-                nickname: document.getElementById('nickname').value,
-                age: document.getElementById('age').value,
-                country: document.getElementById('country').value,
-                city: document.getElementById('city').value,
-                district: document.getElementById('district').value,
-                bio: document.getElementById('bio').value,
-                photo: img
-            };
+            const check = await fetch(`/api/message?auth=${p}`);
+            const res = await check.json();
 
+            if(res.isAdmin) {
+                adminKey = p;
+                btn.classList.add('admin-glow');
+                dot.classList.replace('bg-slate-700', 'bg-blue-500');
+                txt.innerText = "Erişim Açık";
+                render();
+            } else {
+                txt.innerText = "NOPE";
+                btn.classList.add('shake');
+                setTimeout(() => {
+                    btn.classList.remove('shake');
+                    txt.innerText = "ADMIN";
+                }, 1000);
+            }
+        }
+
+        async function deleteComment(personId, commentIndex) {
+            if(!confirm("Bu yorum silinsin mi?")) return;
             await fetch('/api/message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'create', data: obj })
+                body: JSON.stringify({ action: 'delete_comment', data: { personId, commentIndex }, auth: adminKey })
             });
-            location.reload();
+            fetchAll();
         }
 
         async function addComment(id) {
@@ -190,42 +184,26 @@
             fetchAll();
         }
 
-        async function adminLogin() {
-            const btn = document.getElementById('adminBtn');
-            const txt = document.getElementById('adminText');
-            const dot = document.getElementById('statusDot');
-
-            const p = prompt("Yönetici Yetkilendirmesi:");
-            if(!p) return;
-
-            // Backend'e kontrol isteği gönderiyoruz (isAdmin dönüyor mu diye bakıyoruz)
-            const check = await fetch(`/api/message?auth=${p}`);
-            const res = await check.json();
-
-            if (res.isAdmin) {
-                adminKey = p;
-                btn.classList.add('status-active');
-                dot.classList.replace('bg-slate-700', 'bg-blue-500');
-                txt.innerText = "YETKİLİ";
-                render();
-            } else {
-                // Şifre Yanlışsa
-                txt.innerText = "NOPE";
-                txt.classList.add('text-red-500');
-                btn.classList.add('shake');
-                setTimeout(() => {
-                    btn.classList.remove('shake');
-                    txt.innerText = "ADMIN";
-                    txt.classList.remove('text-red-500');
-                }, 1000);
-            }
+        async function save() {
+            const f = document.getElementById('photo').files[0];
+            const img = f ? await new Promise(r => { const rd = new FileReader(); rd.onload = () => r(rd.result); rd.readAsDataURL(f); }) : "";
+            const obj = {
+                name: document.getElementById('name').value, nickname: document.getElementById('nickname').value,
+                age: document.getElementById('age').value, country: document.getElementById('country').value,
+                city: document.getElementById('city').value, district: document.getElementById('district').value,
+                bio: document.getElementById('bio').value, photo: img
+            };
+            await fetch('/api/message', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'create', data: obj })
+            });
+            location.reload();
         }
 
         async function del(id) {
-            if(!confirm("Bu kayıt veritabanından kalıcı olarak silinsin mi?")) return;
+            if(!confirm("Kayıt silinecek?")) return;
             await fetch('/api/message', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'delete', data: { id }, auth: adminKey })
             });
             fetchAll();
@@ -233,19 +211,12 @@
 
         async function edit(id) {
             const p = people.find(x => x.id === id);
-            const nName = prompt("İsim Güncelle:", p.name);
-            const nBio = prompt("Hakkında Güncelle:", p.bio);
+            const nName = prompt("İsim:", p.name);
+            const nBio = prompt("Hakkında:", p.bio);
             if(!nName) return;
-
-            // Sizin backend kodunuz "updatedFields" bekliyor, ona göre düzenledim.
             await fetch('/api/message', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    action: 'update', 
-                    data: { id, updatedFields: { name: nName, bio: nBio } }, 
-                    auth: adminKey 
-                })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'update', data: { id, updatedFields: { name: nName, bio: nBio } }, auth: adminKey })
             });
             fetchAll();
         }
