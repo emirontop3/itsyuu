@@ -3,158 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kripto Mesaj Kasası</title>
+    <title>Kişi Arşiv Sistemi</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        body { background: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        body { background: #0f172a; color: white; }
+        .card { background: #1e293b; border: 1px solid #334155; transition: 0.3s; }
+        .card:hover { border-color: #3b82f6; transform: translateY(-5px); }
+        .modal { background: rgba(0,0,0,0.8); display: none; position: fixed; inset: 0; align-items: center; justify-content: center; z-index: 50; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-10 flex flex-col items-center">
+<body class="p-4">
 
-    <div class="w-full max-w-xl space-y-8">
-        <header class="text-center">
-            <h1 class="text-4xl font-extrabold text-blue-500 tracking-tight">VAULT-X</h1>
-            <p class="text-slate-400 mt-2">Bulut tabanlı, uçtan uca şifreli mesaj saklayıcı.</p>
-        </header>
+    <header class="flex justify-between items-center mb-10">
+        <button onclick="toggleModal('userModal')" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg font-bold">➕ Kişi Oluştur</button>
+        <h1 class="text-2xl font-black text-blue-400">ARCHIVE-X</h1>
+        <button onclick="adminLogin()" id="adminBtn" class="text-slate-500 hover:text-white text-sm">ADMIN MISIN?</button>
+    </header>
 
-        <section class="glass p-6 rounded-3xl shadow-2xl space-y-4">
-            <h2 class="text-xl font-bold text-emerald-400">🔒 Mesajı Kilitle</h2>
-            <textarea id="msgInput" placeholder="Gizli mesajın..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 focus:ring-2 focus:ring-emerald-500 outline-none h-32 transition-all"></textarea>
-            
-            <div class="flex flex-col gap-2 text-sm">
-                <label class="text-slate-400 italic">Görsel veya Ses Kaydı (Opsiyonel):</label>
-                <input type="file" id="fileInput" class="text-slate-400 file:bg-blue-600 file:text-white file:border-0 file:rounded-lg file:px-4 file:py-1 hover:file:bg-blue-700 cursor-pointer">
-            </div>
+    <div id="peopleList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
 
-            <input type="password" id="savePassword" placeholder="Açılış şifresi belirle" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none">
-            
-            <button onclick="saveToCloud()" id="btnSave" class="w-full bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold transition-all transform active:scale-95">Şifrele ve Buluta Gönder</button>
-        </section>
-
-        <section class="glass p-6 rounded-3xl shadow-2xl space-y-4 border-t-4 border-blue-500">
-            <h2 class="text-xl font-bold text-blue-400">🔑 Mesajı Çöz</h2>
+    <div id="userModal" class="modal">
+        <div class="bg-slate-800 p-8 rounded-2xl w-full max-w-md space-y-4">
+            <h2 class="text-xl font-bold">Yeni Kişi Tanımla</h2>
+            <input type="text" id="name" placeholder="İsim Soyisim" class="w-full bg-slate-900 p-2 rounded">
+            <input type="text" id="nickname" placeholder="Nam-ı Değer (Lakap)" class="w-full bg-slate-900 p-2 rounded">
             <div class="flex gap-2">
-                <input type="password" id="readPassword" placeholder="Şifreyi gir" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none">
-                <button onclick="loadFromCloud()" id="btnLoad" class="bg-blue-600 hover:bg-blue-500 px-8 rounded-xl font-bold transition-all">Getir</button>
+                <input type="number" id="age" placeholder="Yaş" class="w-1/3 bg-slate-900 p-2 rounded">
+                <input type="text" id="location" placeholder="Ülke/İl/İlçe" class="w-2/3 bg-slate-900 p-2 rounded">
             </div>
-
-            <div id="outputArea" class="mt-6 p-4 bg-slate-950 rounded-2xl hidden border border-slate-800">
-                <p id="displayText" class="whitespace-pre-wrap text-slate-200 leading-relaxed"></p>
-                <div id="displayMedia" class="mt-4"></div>
+            <textarea id="bio" placeholder="Ek Bilgiler..." class="w-full bg-slate-900 p-2 rounded h-20"></textarea>
+            <input type="file" id="photo" class="text-xs">
+            <div class="flex gap-2">
+                <button onclick="savePerson()" class="bg-emerald-600 flex-1 py-2 rounded font-bold">Oluştur</button>
+                <button onclick="toggleModal('userModal')" class="bg-slate-700 px-4 py-2 rounded">İptal</button>
             </div>
-        </section>
+        </div>
     </div>
 
     <script>
-        // Şifreden benzersiz ID türetir (SHA-256)
-        function generateId(password) {
-            return CryptoJS.SHA256(password).toString().substring(0, 16);
+        let allPeople = [];
+        let isAdmin = false;
+        const ADMIN_PASS = "123456"; // Şifreni buradan değiştir!
+
+        async function fetchPeople() {
+            const res = await fetch('/api/message');
+            const result = await res.json();
+            allPeople = result.data || [];
+            renderCards();
         }
 
-        async function saveToCloud() {
-            const text = document.getElementById('msgInput').value;
-            const password = document.getElementById('savePassword').value;
-            const fileInput = document.getElementById('fileInput');
-            const btn = document.getElementById('btnSave');
+        function renderCards() {
+            const container = document.getElementById('peopleList');
+            container.innerHTML = allPeople.map(p => `
+                <div class="card p-6 rounded-2xl space-y-4 relative">
+                    ${isAdmin ? `<button onclick="deletePerson(${p.id})" class="absolute top-2 right-2 text-red-500 font-bold">X</button>` : ''}
+                    <img src="${p.photo || 'https://via.placeholder.com/150'}" class="w-24 h-24 rounded-full mx-auto object-cover border-2 border-blue-500">
+                    <div class="text-center">
+                        <h3 class="text-xl font-bold">${p.name}</h3>
+                        <p class="text-blue-400 text-sm">"${p.nickname}"</p>
+                    </div>
+                    <div class="text-sm space-y-1 text-slate-300">
+                        <p><strong>Yaş:</strong> ${p.age}</p>
+                        <p><strong>Konum:</strong> ${p.location}</p>
+                        <p class="mt-2 text-slate-400 border-t border-slate-700 pt-2">${p.bio}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            if (!text && !fileInput.files[0]) return alert("Boş mesaj gönderilemez!");
-            if (!password) return alert("Lütfen bir şifre girin!");
-
-            btn.disabled = true;
-            btn.innerText = "Şifreleniyor...";
-
-            let fileData = "";
-            let fileType = "";
-
-            if (fileInput.files[0]) {
-                const reader = new FileReader();
-                fileData = await new Promise(r => {
+        async function savePerson() {
+            const photoFile = document.getElementById('photo').files[0];
+            let photoBase64 = "";
+            if(photoFile) {
+                photoBase64 = await new Promise(r => {
+                    const reader = new FileReader();
                     reader.onload = () => r(reader.result);
-                    reader.readAsDataURL(fileInput.files[0]);
+                    reader.readAsDataURL(photoFile);
                 });
-                fileType = fileInput.files[0].type;
             }
 
-            // 1. Veri Yapısı
-            const payload = JSON.stringify({ text, fileData, fileType });
-            
-            // 2. AES-256 Şifreleme
-            const encrypted = CryptoJS.AES.encrypt(payload, password).toString();
-            const msgId = generateId(password);
+            const newData = {
+                name: document.getElementById('name').value,
+                nickname: document.getElementById('nickname').value,
+                age: document.getElementById('age').value,
+                location: document.getElementById('location').value,
+                bio: document.getElementById('bio').value,
+                photo: photoBase64
+            };
 
-            try {
-                // 3. API'ye Gönder
-                const res = await fetch('/api/message', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: msgId, data: encrypted })
-                });
+            await fetch('/api/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newData, isAdminAction: false })
+            });
 
-                if (res.ok) {
-                    alert("Başarılı! Mesajınız güvenli bir şekilde saklandı.");
-                    document.getElementById('msgInput').value = "";
-                    document.getElementById('savePassword').value = "";
-                }
-            } catch (e) {
-                alert("Bağlantı hatası!");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Şifrele ve Buluta Gönder";
+            toggleModal('userModal');
+            fetchPeople();
+        }
+
+        async function deletePerson(id) {
+            if(!confirm("Silmek istediğine emin misin?")) return;
+            const updated = allPeople.filter(p => p.id !== id);
+            await fetch('/api/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newData: updated, isAdminAction: true })
+            });
+            fetchPeople();
+        }
+
+        function adminLogin() {
+            const pass = prompt("Admin Şifresi:");
+            if(pass === ADMIN_PASS) {
+                isAdmin = true;
+                document.getElementById('adminBtn').innerText = "ADMİN MODU AKTİF";
+                document.getElementById('adminBtn').classList.replace('text-slate-500', 'text-yellow-400');
+                renderCards();
+            } else {
+                alert("Hatalı Şifre!");
             }
         }
 
-        async function loadFromCloud() {
-            const password = document.getElementById('readPassword').value;
-            const output = document.getElementById('outputArea');
-            const btn = document.getElementById('btnLoad');
-
-            if (!password) return;
-            btn.innerText = "...";
-
-            const msgId = generateId(password);
-
-            try {
-                const res = await fetch(`/api/message?id=${msgId}`);
-                const result = await res.json();
-
-                if (!result.data) {
-                    alert("Bu şifre ile eşleşen bir veri bulunamadı.");
-                    return;
-                }
-
-                // AES Çözme
-                const bytes = CryptoJS.AES.decrypt(result.data, password);
-                const decryptedStr = bytes.toString(CryptoJS.enc.Utf8);
-
-                if (!decryptedStr) throw new Error("Hatalı Şifre");
-
-                const decrypted = JSON.parse(decryptedStr);
-
-                // Ekrana Yazdır
-                output.classList.remove('hidden');
-                document.getElementById('displayText').innerText = decrypted.text;
-                
-                const mediaDiv = document.getElementById('displayMedia');
-                mediaDiv.innerHTML = "";
-
-                if (decrypted.fileData) {
-                    if (decrypted.fileType.startsWith('image/')) {
-                        mediaDiv.innerHTML = `<img src="${decrypted.fileData}" class="rounded-xl w-full border border-slate-700 shadow-lg">`;
-                    } else if (decrypted.fileType.startsWith('audio/')) {
-                        mediaDiv.innerHTML = `<audio controls src="${decrypted.fileData}" class="w-full"></audio>`;
-                    } else {
-                        mediaDiv.innerHTML = `<a href="${decrypted.fileData}" download="dosya" class="text-blue-400 underline">Dosyayı İndir</a>`;
-                    }
-                }
-            } catch (e) {
-                alert("Hatalı şifre veya bozuk veri!");
-                output.classList.add('hidden');
-            } finally {
-                btn.innerText = "Getir";
-            }
+        function toggleModal(id) {
+            const m = document.getElementById(id);
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         }
+
+        fetchPeople();
     </script>
 </body>
 </html>
